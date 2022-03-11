@@ -8,6 +8,7 @@ export const HeaderStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
+    maxHeight: "15%",
   },
   appTitle: {
     fontSize: 36,

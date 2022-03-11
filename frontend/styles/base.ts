@@ -9,6 +9,7 @@ export const BaseStyle = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
   },
   column: {
     flexDirection: "column",
