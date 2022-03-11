@@ -28,6 +28,7 @@ export const ItemEntry = () => {
         title="Add Item"
         accessibilityLabel="Click here to add an item to your grocery list!"
         onPress={handleAddItem}
+        color="blue"
       />
     </View>
   );

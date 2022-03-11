@@ -12,6 +12,7 @@ export const ItemListStyle = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     flexGrow: 0,
+    flexBasis: 30,
     marginBottom: 50,
   },
   titleText: {
