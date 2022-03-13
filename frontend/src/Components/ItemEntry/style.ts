@@ -12,10 +12,22 @@ export const ItemEntryStyle = StyleSheet.create({
     marginBottom: 40,
   },
   textbox: {
-    flex: 4,
+    flex: 3,
     height: 40,
     borderWidth: 2,
     margin: 10,
     padding: 2,
+  },
+  button: {
+    flex: 1,
+    backgroundColor: "#24a0ed",
+    alignItems: "center",
+    justifyContent: "center",
+    height: 40,
+    padding: 3,
+    marginRight: 5,
+  },
+  buttonText: {
+    color: "white",
   },
 });

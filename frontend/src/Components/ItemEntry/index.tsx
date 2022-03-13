@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Button, TextInput, View } from "react-native";
+import { TextInput, TouchableOpacity, View, Text } from "react-native";
 import { ListContext } from "../Context/ListContext";
 import { ItemEntryStyle } from "./style";
 
@@ -24,12 +24,9 @@ export const ItemEntry = () => {
         value={text}
         onChangeText={onChange}
       />
-      <Button
-        title="Add Item"
-        accessibilityLabel="Click here to add an item to your grocery list!"
-        onPress={handleAddItem}
-        color="blue"
-      />
+      <TouchableOpacity onPress={handleAddItem} style={ItemEntryStyle.button}>
+        <Text style={ItemEntryStyle.buttonText}>Add Item</Text>
+      </TouchableOpacity>
     </View>
   );
 };

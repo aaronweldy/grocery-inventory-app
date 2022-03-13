@@ -1,12 +1,14 @@
 import React from "react";
-import { Button, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { BaseStyle } from "../../../styles/base";
 import { SubmitButtonStyle } from "./style";
 
 export const SubmitButton = () => {
   return (
-    <View style={SubmitButtonStyle.button}>
-      <Button color="green" title="Submit!" onPress={() => {}} />
+    <View style={SubmitButtonStyle.buttonContainer}>
+      <TouchableOpacity style={SubmitButtonStyle.button} onPress={() => {}}>
+        <Text style={SubmitButtonStyle.buttonText}>Submit!</Text>
+      </TouchableOpacity>
     </View>
   );
 };
