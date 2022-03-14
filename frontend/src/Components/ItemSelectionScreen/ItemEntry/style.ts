@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { BaseStyle } from "../../../styles/base";
+import { BaseStyle } from "../../../../styles/base";
 
 export const ItemEntryStyle = StyleSheet.create({
   entryRow: {
@@ -8,8 +8,8 @@ export const ItemEntryStyle = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     //flexGrow: 0,
-    marginTop: 40,
-    marginBottom: 40,
+    marginTop: 10,
+    marginBottom: 10,
   },
   textbox: {
     flex: 3,

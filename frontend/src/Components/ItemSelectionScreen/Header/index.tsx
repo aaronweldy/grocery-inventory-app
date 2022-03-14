@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, View } from "react-native";
 import { Logo } from "../Logo";
-import { BaseStyle } from "../../../styles/base";
+import { BaseStyle } from "../../../../styles/base";
 import { HeaderStyles } from "./style";
 
 export const Header = () => (

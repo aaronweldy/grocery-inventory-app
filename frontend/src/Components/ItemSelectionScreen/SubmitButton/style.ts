@@ -4,6 +4,7 @@ export const SubmitButtonStyle = StyleSheet.create({
   buttonContainer: {
     flex: 1,
     padding: 10,
+    marginTop: 15,
   },
   button: {
     alignItems: "center",

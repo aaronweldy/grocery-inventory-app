@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { TextInput, TouchableOpacity, View, Text } from "react-native";
-import { ListContext } from "../Context/ListContext";
+import { ListContext } from "../../../Context/ListContext";
 import { ItemEntryStyle } from "./style";
 
 export const ItemEntry = () => {

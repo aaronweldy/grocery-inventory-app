@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { FlatList, Text, View } from "react-native";
-import { ListContext } from "../Context/ListContext";
+import { ListContext } from "../../../Context/ListContext";
 import { ItemInList } from "../ItemInList";
 
 import { ItemListStyle } from "./style";
