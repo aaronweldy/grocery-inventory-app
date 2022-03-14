@@ -2,6 +2,7 @@
 
 To run:
 
+
 Frontend: npm start in frontend directory  
 If missing expo: sudo npm install --global expo-cli    
 
