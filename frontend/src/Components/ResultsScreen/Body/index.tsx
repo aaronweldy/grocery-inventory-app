@@ -10,7 +10,7 @@ export const Body = () => {
   const handlePress = () => {
     setTimeout(() => {
       navigation.navigate("ItemSelection");
-    }, 1500);
+    }, 200);
   };
 
   return (
