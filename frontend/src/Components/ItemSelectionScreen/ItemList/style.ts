@@ -11,7 +11,7 @@ export const ItemListStyle = StyleSheet.create({
     fontSize: 24,
   },
   body: {
-    height: 400,
+    height: 500,
     minWidth: 300,
     borderWidth: 2,
   },

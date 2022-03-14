@@ -1,13 +1,14 @@
-import { StatusBar } from "expo-status-bar";
-import { SafeAreaView } from "react-native";
-import { BaseStyle } from "./styles/base";
-import { Header } from "./src/Components/Header";
-import { Body } from "./src/Components/Body";
 import React, { useCallback, useState } from "react";
-import { ListContext } from "./src/Components/Context/ListContext";
+import { ItemSelectionScreen } from "./src/Components/ItemSelectionScreen";
+import { ListContext } from "./src/Context/ListContext";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { RootStackNavigator } from "./src/navigation/types";
+import { ResultsScreen } from "./src/Components/ResultsScreen";
 
 export default function App() {
   const [list, setList] = useState<string[]>([]);
+  const Stack = createNativeStackNavigator<RootStackNavigator>();
 
   const addToList = useCallback(
     (item: string) => {
@@ -26,12 +27,13 @@ export default function App() {
   );
 
   return (
-    <ListContext.Provider value={{ list, addToList, removeFromList }}>
-      <SafeAreaView style={BaseStyle.container}>
-        <Header />
-        <Body />
-        <StatusBar style="auto" />
-      </SafeAreaView>
-    </ListContext.Provider>
+    <NavigationContainer>
+      <ListContext.Provider value={{ list, addToList, removeFromList }}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="ItemSelection" component={ItemSelectionScreen} />
+          <Stack.Screen name="Results" component={ResultsScreen} />
+        </Stack.Navigator>
+      </ListContext.Provider>
+    </NavigationContainer>
   );
 }

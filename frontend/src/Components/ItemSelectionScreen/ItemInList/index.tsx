@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { View, Text, Button } from "react-native";
-import { ListContext } from "../Context/ListContext";
+import { ListContext } from "../../../Context/ListContext";
 import { ItemInListStyle } from "./style";
 
 type ItemInListProps = {
