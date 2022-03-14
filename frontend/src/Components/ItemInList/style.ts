@@ -8,9 +8,11 @@ export const ItemInListStyle = StyleSheet.create({
     alignItems: "flex-start",
     width: 300,
     padding: 5,
+    borderWidth: 1,
+    borderColor: "#20232a",
   },
   itemText: {
     fontSize: 24,
     fontWeight: "bold",
-  },
+  }
 });
