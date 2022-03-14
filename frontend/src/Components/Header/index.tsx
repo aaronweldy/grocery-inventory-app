@@ -8,7 +8,7 @@ export const Header = () => (
   <View style={HeaderStyles.header}>
     <Logo />
     <View style={BaseStyle.column}>
-      <Text style={HeaderStyles.appTitle}>App Title</Text>
+      <Text style={HeaderStyles.appTitle}>Stockify</Text>
     </View>
   </View>
 );
