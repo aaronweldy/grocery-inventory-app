@@ -1,69 +1,145 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
-  "io/ioutil"
-	"encoding/json"
 	"strings"
 )
 
 type Request struct {
-    Zip string
-    Products string
+	Zip      string
+	Products string
 }
 
 type Token struct {
-	Expires_in int
+	Expires_in   int
 	Access_token string
-	Token_type string
+	Token_type   string
+}
+
+type Location struct {
+	Data []struct {
+		Address struct {
+			AddressLine1 string
+			AddressLine2 string
+			City         string
+			County       string
+			State        string
+			Zipcode      string
+		}
+		Chain       string
+		Phone       string
+		Departments []struct {
+			DepartmentID string
+			Name         string
+			Phone        string
+			Hours        string
+		}
+		Geolocation struct {
+			LatLng    string
+			Latitude  float64
+			Longitude float64
+		}
+		Hours struct {
+			Open24    bool
+			Gmtoffset string
+			Timezone  string
+			Friday    struct {
+				Open   string
+				Close  string
+				Open24 bool
+			}
+			Monday struct {
+				Open   string
+				Close  string
+				Open24 bool
+			}
+			Saturday struct {
+				Open   string
+				Close  string
+				Open24 bool
+			}
+			Sunday struct {
+				Open   string
+				Close  string
+				Open24 bool
+			}
+			Thursday struct {
+				Open   string
+				Close  string
+				Open24 bool
+			}
+			Tuesday struct {
+				Open   string
+				Close  string
+				Open24 bool
+			}
+			Wednesday struct {
+				Open   string
+				Close  string
+				Open24 bool
+			}
+		}
+		LocationId string
+		Name       string
+	}
+	Meta struct {
+		Pagination struct {
+			Total int
+			Start int
+			Limit int
+		}
+		Warnings []string
+	}
 }
 
 type Product struct {
 	Data []struct {
-		ProductId string
+		ProductId      string
 		AisleLocations []struct {
-			BayNumber string
-			Description string
-			Number string
-			numberOfFacings string
-			SequenceNumber string
-			Side string
-			shelfNumber string
+			BayNumber          string
+			Description        string
+			Number             string
+			numberOfFacings    string
+			SequenceNumber     string
+			Side               string
+			shelfNumber        string
 			shelfPositionInBay string
 		}
-		Brand string
-		Categories []string
+		Brand         string
+		Categories    []string
 		CountryOrigin string
-		Description string
-		Items []struct {
-			ItemId string
-			Favorite bool
+		Description   string
+		Items         []struct {
+			ItemId      string
+			Favorite    bool
 			Fulfillment struct {
-				Curbside bool
-				Delivery bool
-				Instore bool
+				Curbside   bool
+				Delivery   bool
+				Instore    bool
 				ShipToHome bool
 			}
 		}
 		ItemInformation struct {
-			Depth string
+			Depth  string
 			Height string
-			Width string
+			Width  string
 		}
 		Temperature struct {
-			Indicator string
+			Indicator     string
 			HeatSensitive bool
 		}
 		Images []struct {
-			Id string
+			Id          string
 			perspective string
-			Default bool
-			Sizes []struct {
-				Id string
+			Default     bool
+			Sizes       []struct {
+				Id   string
 				Size string
-				Url string
+				Url  string
 			}
 		}
 		Upc string
@@ -79,20 +155,20 @@ type Product struct {
 }
 
 func ProductHandler(term string, locationId string, token string) {
-  url := fmt.Sprintf("https://api.kroger.com/v1/products?filter.term=%s&filter.locationId=%s", term, locationId)
+	url := fmt.Sprintf("https://api.kroger.com/v1/products?filter.term=%s&filter.locationId=%s", term, locationId)
 
-  req, _ := http.NewRequest("GET", url, nil)
+	req, _ := http.NewRequest("GET", url, nil)
 
-  req.Header.Add("Accept", "application/json")
-  req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
-  res, _ := http.DefaultClient.Do(req)
+	res, _ := http.DefaultClient.Do(req)
 
 	defer res.Body.Close()
-  body, _ := ioutil.ReadAll(res.Body)
+	body, _ := ioutil.ReadAll(res.Body)
 
-  // fmt.Println(res)
-  // fmt.Println(string(body))
+	// fmt.Println(res)
+	// fmt.Println(string(body))
 
 	var prods Product
 	err := json.Unmarshal(body, &prods)
@@ -108,18 +184,28 @@ func ProductHandler(term string, locationId string, token string) {
 
 func LocationHandler(zip string, token string) {
 	url := fmt.Sprintf("https://api.kroger.com/v1/locations?filter.zipCode.near=%s&filter.limit=3", zip)
-  req, _ := http.NewRequest("GET", url, nil)
+	req, _ := http.NewRequest("GET", url, nil)
 
-  req.Header.Add("Accept", "application/json")
+	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
-  res, _ := http.DefaultClient.Do(req)
+	res, _ := http.DefaultClient.Do(req)
 
-  defer res.Body.Close()
-  // _, _ := ioutil.ReadAll(res.Body)
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
 	//
-  // fmt.Println(res)
-  // fmt.Println(string(body))
+	// fmt.Println(res)
+	// fmt.Println(string(body))
+
+	var locs Location
+	err := json.Unmarshal(body, &locs)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, prod := range locs.Data {
+		fmt.Println(prod.LocationId)
+	}
 }
 
 func basicGetHandler(w http.ResponseWriter, r *http.Request) {
@@ -129,8 +215,8 @@ func basicGetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method != "GET" {
-			http.Error(w, "Method is not supported.", http.StatusNotFound)
-			return
+		http.Error(w, "Method is not supported.", http.StatusNotFound)
+		return
 	}
 
 	fmt.Fprintf(w, "Success!")
@@ -143,15 +229,15 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method != "POST" {
-			http.Error(w, "Method is not supported.", http.StatusNotFound)
-			return
+		http.Error(w, "Method is not supported.", http.StatusNotFound)
+		return
 	}
 
 	body, _ := ioutil.ReadAll(r.Body)
 	fmt.Println(r.Body)
 	// var user_input Request
 	user_input := Request{
-		Zip: "48104",
+		Zip:      "48104",
 		Products: "tempeh",
 	}
 	err := json.Unmarshal(body, &user_input)
@@ -164,21 +250,20 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	// refresh token
 	url := "https://api.kroger.com/v1/connect/oauth2/token"
 
-  payload := strings.NewReader("grant_type=client_credentials&scope=product.compact")
+	payload := strings.NewReader("grant_type=client_credentials&scope=product.compact")
 
-  req, _ := http.NewRequest("POST", url, payload)
+	req, _ := http.NewRequest("POST", url, payload)
 
-  req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-  req.Header.Add("Authorization", "Basic ZWVjczQ5N3B0Mi1lZmQ0NGM5ZTUyZGY3MGEwNmI3MGE2MTkxNDJhNGI1Njg4MjQ4MzkzNDM5NDg3NDI4MzM6NGk1a1lyVXp1MFZMWjR3Vk01SUllR1ZHXzc0OXpKTjRaVUhnckI3cg==")
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Authorization", "Basic ZWVjczQ5N3B0Mi1lZmQ0NGM5ZTUyZGY3MGEwNmI3MGE2MTkxNDJhNGI1Njg4MjQ4MzkzNDM5NDg3NDI4MzM6NGk1a1lyVXp1MFZMWjR3Vk01SUllR1ZHXzc0OXpKTjRaVUhnckI3cg==")
 
-  res, _ := http.DefaultClient.Do(req)
+	res, _ := http.DefaultClient.Do(req)
 
+	defer res.Body.Close()
+	body, _ = ioutil.ReadAll(res.Body)
 
-  defer res.Body.Close()
-  body, _ = ioutil.ReadAll(res.Body)
-
-  // fmt.Println(res)
-  // fmt.Println(string(body))
+	// fmt.Println(res)
+	// fmt.Println(string(body))
 
 	var t Token
 	err = json.Unmarshal(body, &t)
@@ -202,7 +287,7 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 	http.HandleFunc("/list", listHandler)
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(":8082", nil); err != nil {
 		log.Fatal(err)
 	}
 }
