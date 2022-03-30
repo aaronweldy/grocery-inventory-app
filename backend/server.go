@@ -20,6 +20,64 @@ type Token struct {
 	Token_type string
 }
 
+type Product struct {
+	Data []struct {
+		ProductId string
+		AisleLocations []struct {
+			BayNumber string
+			Description string
+			Number string
+			numberOfFacings string
+			SequenceNumber string
+			Side string
+			shelfNumber string
+			shelfPositionInBay string
+		}
+		Brand string
+		Categories []string
+		CountryOrigin string
+		Description string
+		Items []struct {
+			ItemId string
+			Favorite bool
+			Fulfillment struct {
+				Curbside bool
+				Delivery bool
+				Instore bool
+				ShipToHome bool
+			}
+		}
+		ItemInformation struct {
+			Depth string
+			Height string
+			Width string
+		}
+		Temperature struct {
+			Indicator string
+			HeatSensitive bool
+		}
+		Images []struct {
+			Id string
+			perspective string
+			Default bool
+			Sizes []struct {
+				Id string
+				Size string
+				Url string
+			}
+		}
+		Upc string
+	}
+	Meta struct {
+		Pagination struct {
+			Total int
+			Start int
+			Limit int
+		}
+		Warnings []string
+	}
+}
+
 func ProductHandler(term string, locationId string, token string) {
   url := fmt.Sprintf("https://api.kroger.com/v1/products?filter.term=%s&filter.locationId=%s", term, locationId)
 
@@ -30,11 +88,22 @@ func ProductHandler(term string, locationId string, token string) {
 
   res, _ := http.DefaultClient.Do(req)
 
-  defer res.Body.Close()
+	defer res.Body.Close()
   body, _ := ioutil.ReadAll(res.Body)
 
   // fmt.Println(res)
   // fmt.Println(string(body))
+
+	var prods Product
+	err := json.Unmarshal(body, &prods)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, prod := range prods.Data {
+		fmt.Println(prod.Brand)
+	}
+
 }
 
 func LocationHandler(zip string, token string) {
