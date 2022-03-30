@@ -17,8 +17,10 @@ export const ItemInList = ({ itemType, index }: ItemInListProps) => {
     setQuantity(quantity);
   }
   function decrementQuantity(){
-    quantity = quantity - 1;
-    setQuantity(quantity);
+    if(quantity > 0){
+      quantity = quantity - 1;
+      setQuantity(quantity);
+    }
   }
 
   return (
