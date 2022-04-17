@@ -11,7 +11,17 @@ import (
 
 type Request struct {
 	Zip      string
-	Products string
+	Products []string
+}
+
+type Response struct {
+	Store []struct {
+		Name string
+		Address string
+		LocationId string
+		PercentAvailable float
+		Missing []string
+	}
 }
 
 type Token struct {
@@ -167,18 +177,29 @@ func ProductHandler(term string, locationId string, token string) {
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 
-	// fmt.Println(res)
-	// fmt.Println(string(body))
-
 	var prods Product
 	err := json.Unmarshal(body, &prods)
 	if err != nil {
 		panic(err)
 	}
 
+	var available = false
 	for _, prod := range prods.Data {
-		fmt.Println(prod.Brand)
+		// fmt.Println(prod.Brand)
+		for _, item := range prod.Items {
+			// fmt.Println(prod.Brand)
+			if item.Fulfillment.Instore {
+				available = true
+			}
+		}
 	}
+
+	if available {
+		fmt.Println(fmt.Sprintf("Available in %s", locationId))
+	}	else {
+		fmt.Println(fmt.Sprintf("Not available in %s", locationId))
+	}
+
 
 }
 
@@ -206,7 +227,6 @@ func LocationHandler(zip string, token string) []string {
 	locIdArray := make([]string, 0)
 
 	for _, prod := range locs.Data {
-		//fmt.Println(prod.LocationId)
 		locIdArray = append(locIdArray, prod.LocationId)
 	}
 	return locIdArray
@@ -228,7 +248,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	// var user_input Request
 	user_input := Request{
 		Zip:      "48104",
-		Products: "tempeh",
+		Products: []string{"goat cheese", "tempeh"},
 	}
 	err := json.Unmarshal(body, &user_input)
 	// if err != nil {
@@ -262,16 +282,18 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("refreshed access token")
 
-	// // find nearby stores
-	//locationIds := make([]string, 0)
+	// find nearby stores and search for products
+	var response Response
+
 	locationIds := LocationHandler(user_input.Zip, t.Access_token)
-	for _, v := range locationIds {
-		fmt.Println(v)
+	for _, id := range locationIds {
+		for _, prod := range user_input.Products {
+			ProductHandler(prod, id, t.Access_token)
+		}
+
+
 	}
 
-	// // search for products
-	locationId := "01400943"
-	ProductHandler(user_input.Products, locationId, t.Access_token)
 }
 
 func main() {
