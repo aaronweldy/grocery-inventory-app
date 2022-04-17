@@ -19,7 +19,7 @@ type Response struct {
 		Name string
 		Address string
 		LocationId string
-		PercentAvailable float
+		PercentAvailable float64
 		Missing []string
 	}
 }
@@ -164,7 +164,7 @@ type Product struct {
 	}
 }
 
-func ProductHandler(term string, locationId string, token string) {
+func ProductHandler(term string, locationId string, token string) bool {
 	url := fmt.Sprintf("https://api.kroger.com/v1/products?filter.term=%s&filter.locationId=%s", term, locationId)
 
 	req, _ := http.NewRequest("GET", url, nil)
@@ -200,7 +200,7 @@ func ProductHandler(term string, locationId string, token string) {
 		fmt.Println(fmt.Sprintf("Not available in %s", locationId))
 	}
 
-
+	return available
 }
 
 func LocationHandler(zip string, token string) []string {
@@ -248,7 +248,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	// var user_input Request
 	user_input := Request{
 		Zip:      "48104",
-		Products: []string{"goat cheese", "tempeh"},
+		Products: []string{"goat cheese", "tempeh", "frijoles volteados", "chips"},
 	}
 	err := json.Unmarshal(body, &user_input)
 	// if err != nil {
@@ -283,16 +283,22 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("refreshed access token")
 
 	// find nearby stores and search for products
-	var response Response
-
+	// var response Response
 	locationIds := LocationHandler(user_input.Zip, t.Access_token)
 	for _, id := range locationIds {
+		missing := make([]string, 0)
 		for _, prod := range user_input.Products {
-			ProductHandler(prod, id, t.Access_token)
+			available := ProductHandler(prod, id, t.Access_token)
+			if !available {
+				missing = append(missing, prod)
+			}
 		}
-
-
+		percentAvailable := (len(user_input.Products) - len(missing) ) * 100.00 / len(user_input.Products)
+		fmt.Println(percentAvailable)
+		fmt.Println(missing)
 	}
+
+
 
 }
 
