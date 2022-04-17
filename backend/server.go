@@ -182,7 +182,7 @@ func ProductHandler(term string, locationId string, token string) {
 
 }
 
-func LocationHandler(zip string, token string) {
+func LocationHandler(zip string, token string) []string {
 	url := fmt.Sprintf("https://api.kroger.com/v1/locations?filter.zipCode.near=%s&filter.limit=3", zip)
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -203,9 +203,13 @@ func LocationHandler(zip string, token string) {
 		panic(err)
 	}
 
+	locIdArray := make([]string, 0)
+
 	for _, prod := range locs.Data {
-		fmt.Println(prod.LocationId)
+		//fmt.Println(prod.LocationId)
+		locIdArray = append(locIdArray, prod.LocationId)
 	}
+	return locIdArray
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
@@ -259,7 +263,11 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("refreshed access token")
 
 	// // find nearby stores
-	LocationHandler(user_input.Zip, t.Access_token)
+	//locationIds := make([]string, 0)
+	locationIds := LocationHandler(user_input.Zip, t.Access_token)
+	for _, v := range locationIds {
+		fmt.Println(v)
+	}
 
 	// // search for products
 	locationId := "01400943"
