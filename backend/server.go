@@ -14,14 +14,13 @@ type Request struct {
 	Products []string
 }
 
-type Response struct {
-	Store []struct {
-		Name string
-		Address string
-		LocationId string
-		PercentAvailable float64
-		Missing []string
-	}
+type Store struct {
+	Name             string
+	Add1             string
+	Add2             string
+	LocationId       string
+	PercentAvailable float64
+	Missing          []string
 }
 
 type Token struct {
@@ -196,14 +195,14 @@ func ProductHandler(term string, locationId string, token string) bool {
 
 	if available {
 		fmt.Println(fmt.Sprintf("Available in %s", locationId))
-	}	else {
+	} else {
 		fmt.Println(fmt.Sprintf("Not available in %s", locationId))
 	}
 
 	return available
 }
 
-func LocationHandler(zip string, token string) []string {
+func LocationHandler(zip string, token string) []Store {
 	url := fmt.Sprintf("https://api.kroger.com/v1/locations?filter.zipCode.near=%s&filter.limit=3", zip)
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -224,12 +223,21 @@ func LocationHandler(zip string, token string) []string {
 		panic(err)
 	}
 
-	locIdArray := make([]string, 0)
+	//locIdArray := make([]string, 0)
+	Response := make([]Store, 0)
 
-	for _, prod := range locs.Data {
-		locIdArray = append(locIdArray, prod.LocationId)
+	for _, loc := range locs.Data {
+		s := Store{
+			Name:             loc.Name,
+			Add1:             loc.Address.AddressLine1,
+			Add2:             loc.Address.AddressLine2,
+			LocationId:       loc.LocationId,
+			PercentAvailable: 0.0,
+			Missing:          []string{},
+		}
+		Response = append(Response, s)
 	}
-	return locIdArray
+	return Response
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
@@ -284,17 +292,18 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 
 	// find nearby stores and search for products
 	// var response Response
-	locationIds := LocationHandler(user_input.Zip, t.Access_token)
-	for _, id := range locationIds {
+	response := LocationHandler(user_input.Zip, t.Access_token)
+	for _, store := range response {
 		missing := make([]string, 0)
 		for _, prod := range user_input.Products {
-			available := ProductHandler(prod, id, t.Access_token)
+			available := ProductHandler(prod, store.LocationId, t.Access_token)
 			if !available {
 				missing = append(missing, prod)
 			}
 		}
-		percentAvailable := (len(user_input.Products) - len(missing) ) * 100.00 / len(user_input.Products)
-		fmt.Println(percentAvailable)
+		store.PercentAvailable = (len(user_input.Products) - len(missing) ) * 100.00 / len(user_input.Products)
+		store.Missing = missing
+		fmt.Println(store.PercentAvailable)
 		fmt.Println(missing)
 	}
 
@@ -303,9 +312,9 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fmt.Printf("Starting server at port 8080\n")
+	fmt.Printf("Starting server at port 8082\n")
 	http.HandleFunc("/list", listHandler)
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(":8082", nil); err != nil {
 		log.Fatal(err)
 	}
 }
