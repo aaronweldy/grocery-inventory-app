@@ -15,12 +15,12 @@ type Request struct {
 }
 
 type Store struct {
-	Name             string
-	Add1             string
-	Add2             string
-	LocationId       string
-	PercentAvailable float64
-	Missing          []string
+	storeName         string
+	storeAddress      string
+	missingItems      []string
+	locationId        string
+	percentageInStock float64
+	storeLogo         string
 }
 
 type Token struct {
@@ -228,12 +228,12 @@ func LocationHandler(zip string, token string) []Store {
 
 	for _, loc := range locs.Data {
 		s := Store{
-			Name:             loc.Name,
-			Add1:             loc.Address.AddressLine1,
-			Add2:             loc.Address.AddressLine2,
-			LocationId:       loc.LocationId,
-			PercentAvailable: 0.0,
-			Missing:          []string{},
+			storeName:         loc.Name,
+			storeAddress:      loc.Address.AddressLine1,
+			missingItems:      []string{},
+			locationId:        loc.LocationId,
+			percentageInStock: 0.0,
+			storeLogo:         "",
 		}
 		Response = append(Response, s)
 	}
@@ -250,13 +250,21 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method is not supported.", http.StatusNotFound)
 		return
 	}
-
+	r.ParseForm()
+	for k, v := range r.Form {
+		fmt.Println(k)
+		for _, v1 := range v {
+			fmt.Println(v1)
+		}
+	}
 	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(r.Body)
+	//fmt.Println(r.Body)
+	fmt.Println("printed body of request")
 	// var user_input Request
 	user_input := Request{
-		Zip:      "48104",
-		Products: []string{"goat cheese", "tempeh", "frijoles volteados", "chips"},
+		Zip: r.FormValue("Zip"),
+		//Products: []string{"goat cheese", "tempeh", "frijoles volteados", "chips"},
+		Products: r.Form["Products"],
 	}
 	err := json.Unmarshal(body, &user_input)
 	// if err != nil {
@@ -289,21 +297,24 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	fmt.Println("refreshed access token")
+	fmt.Println("zip code is")
+	fmt.Println(user_input.Zip)
 
 	// find nearby stores and search for products
 	// var response Response
 	response := LocationHandler(user_input.Zip, t.Access_token)
 	for _, store := range response {
+		fmt.Println("hi")
 		missing := make([]string, 0)
 		for _, prod := range user_input.Products {
-			available := ProductHandler(prod, store.LocationId, t.Access_token)
+			available := ProductHandler(prod, store.locationId, t.Access_token)
 			if !available {
 				missing = append(missing, prod)
 			}
 		}
-		store.PercentAvailable = float64(len(user_input.Products)-len(missing)) * 100.00 / float64(len(user_input.Products))
-		store.Missing = missing
-		fmt.Println(store.PercentAvailable)
+		store.percentageInStock = float64(len(user_input.Products)-len(missing)) * 100.00 / float64(len(user_input.Products))
+		store.missingItems = missing
+		fmt.Println(store.percentageInStock)
 		fmt.Println(missing)
 	}
 
@@ -312,7 +323,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	fmt.Printf("Starting server at port 8082\n")
 	http.HandleFunc("/list", listHandler)
-	if err := http.ListenAndServe(":8082", nil); err != nil {
+	if err := http.ListenAndServe(":8083", nil); err != nil {
 		log.Fatal(err)
 	}
 }
