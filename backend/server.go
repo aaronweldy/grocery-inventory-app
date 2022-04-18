@@ -15,12 +15,12 @@ type Request struct {
 }
 
 type Store struct {
-	storeName         string
-	storeAddress      string
-	missingItems      []string
-	locationId        string
-	percentageInStock float64
-	storeLogo         string
+	StoreName         string
+	StoreAddress      string
+	MissingItems      []string
+	LocationId        string
+	PercentageInStock float64
+	StoreLogo         string
 }
 
 type Response struct {
@@ -175,13 +175,16 @@ func ProductHandler(term string, locationId string, token string) bool {
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
-	res, _ := http.DefaultClient.Do(req)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 
 	var prods Product
-	err := json.Unmarshal(body, &prods)
+	err = json.Unmarshal(body, &prods)
 	if err != nil {
 		panic(err)
 	}
@@ -198,9 +201,9 @@ func ProductHandler(term string, locationId string, token string) bool {
 	}
 
 	if available {
-		fmt.Println(fmt.Sprintf("Available in %s", locationId))
+		fmt.Printf("Available in %s\n", locationId)
 	} else {
-		fmt.Println(fmt.Sprintf("Not available in %s", locationId))
+		fmt.Printf("Not available in %s\n", locationId)
 	}
 
 	return available
@@ -213,7 +216,10 @@ func LocationHandler(zip string, token string) Response {
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
-	res, _ := http.DefaultClient.Do(req)
+	res, err := http.DefaultClient.Do(req)
+	if (err != nil) {
+		panic(err)
+	}
 
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
@@ -222,7 +228,7 @@ func LocationHandler(zip string, token string) Response {
 	// fmt.Println(string(body))
 
 	var locs Location
-	err := json.Unmarshal(body, &locs)
+	err = json.Unmarshal(body, &locs)
 	if err != nil {
 		panic(err)
 	}
@@ -232,12 +238,12 @@ func LocationHandler(zip string, token string) Response {
 	var resp Response
 	for _, loc := range locs.Data {
 		s := Store{
-			storeName:         loc.Name,
-			storeAddress:      loc.Address.AddressLine1,
-			missingItems:      []string{},
-			locationId:        loc.LocationId,
-			percentageInStock: 0.0,
-			storeLogo:         "",
+			StoreName:         loc.Name,
+			StoreAddress:      loc.Address.AddressLine1,
+			MissingItems:      []string{},
+			LocationId:        loc.LocationId,
+			PercentageInStock: 0.0,
+			StoreLogo:         "",
 		}
 		resp.Stores = append(resp.Stores, s)
 	}
@@ -281,7 +287,10 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Authorization", "Basic ZWVjczQ5N3B0Mi1lZmQ0NGM5ZTUyZGY3MGEwNmI3MGE2MTkxNDJhNGI1Njg4MjQ4MzkzNDM5NDg3NDI4MzM6NGk1a1lyVXp1MFZMWjR3Vk01SUllR1ZHXzc0OXpKTjRaVUhnckI3cg==")
 
-	res, _ := http.DefaultClient.Do(req)
+	res, err := http.DefaultClient.Do(req)
+	if (err != nil) {
+		panic(err)
+	}
 
 	defer res.Body.Close()
 	body, _ = ioutil.ReadAll(res.Body)
@@ -297,13 +306,13 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	for i, store := range resp.Stores {
 		missing := make([]string, 0)
 		for _, prod := range user_input.Products {
-			available := ProductHandler(prod, store.locationId, t.Access_token)
+			available := ProductHandler(prod, store.LocationId, t.Access_token)
 			if !available {
 				missing = append(missing, prod)
 			}
 		}
-		resp.Stores[i].percentageInStock = float64(len(user_input.Products)-len(missing)) * 100.00 / float64(len(user_input.Products))
-		resp.Stores[i].missingItems = missing
+		resp.Stores[i].PercentageInStock = float64(len(user_input.Products)-len(missing)) * 100.00 / float64(len(user_input.Products))
+		resp.Stores[i].MissingItems = missing
 	}
 
 	fmt.Println("resp")
@@ -316,11 +325,10 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("jsonResp")
 	fmt.Println(jsonResp)
 
-	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResp)
-	return
-
 }
 
 func main() {

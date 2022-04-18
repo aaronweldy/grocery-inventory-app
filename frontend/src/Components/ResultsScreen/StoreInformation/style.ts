@@ -12,7 +12,7 @@ export const StoreInformationStyle = StyleSheet.create({
     fontWeight: "bold",
   },
   storeAddressText: {
-    fontSize: 18,
+    fontSize: 12,
     color: "#a9a9a9",
   },
   missingItemHeader: {

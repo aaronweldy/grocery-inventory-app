@@ -23,7 +23,7 @@ export const ContentRow = ({
       <Image
         source={{ uri: storeLogo }}
         style={ContentRowStyles.logo}
-        resizeMode="contain"
+        resizeMode="center"
       />
       <StoreInformation
         name={storeName}

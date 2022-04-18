@@ -1,6 +1,9 @@
 import { StyleSheet } from "react-native";
 
 export const ContentRowStyles = StyleSheet.create({
+  listBody: {
+    marginTop: 80,
+  },
   contentRow: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -10,6 +13,7 @@ export const ContentRowStyles = StyleSheet.create({
   logo: {
     flex: 1,
     height: "100%",
+    paddingHorizontal: 50,
   },
   percentageContainer: {
     flex: 1,
@@ -19,5 +23,6 @@ export const ContentRowStyles = StyleSheet.create({
   percentage: {
     fontSize: 36,
     color: "#097969",
+    paddingHorizontal: 40,
   },
 });

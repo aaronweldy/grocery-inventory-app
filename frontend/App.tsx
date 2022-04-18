@@ -6,11 +6,13 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { RootStackNavigator } from "./src/navigation/types";
 import { ResultsScreen } from "./src/Components/ResultsScreen";
 import { ZipCodeScreen } from "./src/Components/ZipCodeScreen";
-
+import { RootStackParamList } from "./src/types";
+import { ZipCodeContext } from "./src/Context/ZipCodeContext";
 
 export default function App() {
   const [list, setList] = useState<string[]>([]);
-  const Stack = createNativeStackNavigator<RootStackNavigator>();
+  const [zipCode, setZipCode] = useState<string>("");
+  const Stack = createNativeStackNavigator<RootStackParamList>();
 
   const addToList = useCallback(
     (item: string) => {
@@ -30,13 +32,18 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <ListContext.Provider value={{ list, addToList, removeFromList }}>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="ZipCode" component={ZipCodeScreen} />
-          <Stack.Screen name="ItemSelection" component={ItemSelectionScreen} />
-          <Stack.Screen name="Results" component={ResultsScreen} />
-        </Stack.Navigator>
-      </ListContext.Provider>
+      <ZipCodeContext.Provider value={{ zipCode, setZipCode }}>
+        <ListContext.Provider value={{ list, addToList, removeFromList }}>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="ZipCode" component={ZipCodeScreen} />
+            <Stack.Screen
+              name="ItemSelection"
+              component={ItemSelectionScreen}
+            />
+            <Stack.Screen name="Results" component={ResultsScreen} />
+          </Stack.Navigator>
+        </ListContext.Provider>
+      </ZipCodeContext.Provider>
     </NavigationContainer>
   );
 }

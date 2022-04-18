@@ -1,22 +1,13 @@
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { BaseStyle } from "../../../../styles/base";
 import { SubmitButtonStyle } from "./style";
 
-type SubmitButtonProps = {
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-export const SubmitButton = ({ setLoading }: SubmitButtonProps) => {
+export const SubmitButton = () => {
   const navigation = useNavigation();
 
   const handlePress = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigation.navigate("ItemSelection");
-    }, 1500);
+    navigation.navigate("ItemSelection");
   };
 
   return (
