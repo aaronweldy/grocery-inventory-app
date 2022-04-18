@@ -301,13 +301,11 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 				missing = append(missing, prod)
 			}
 		}
-		store.PercentAvailable = (len(user_input.Products) - len(missing) ) * 100.00 / len(user_input.Products)
+		store.PercentAvailable = float64(len(user_input.Products)-len(missing)) * 100.00 / float64(len(user_input.Products))
 		store.Missing = missing
 		fmt.Println(store.PercentAvailable)
 		fmt.Println(missing)
 	}
-
-
 
 }
 
