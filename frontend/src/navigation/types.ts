@@ -1,6 +1,7 @@
 export type RootStackNavigator = {
   ItemSelection: undefined;
   Results: undefined;
+  ZipCode: undefined;
 };
 
 declare global {

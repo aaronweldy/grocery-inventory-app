@@ -5,6 +5,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { RootStackNavigator } from "./src/navigation/types";
 import { ResultsScreen } from "./src/Components/ResultsScreen";
+import { ZipCodeScreen } from "./src/Components/ZipCodeScreen";
+
 
 export default function App() {
   const [list, setList] = useState<string[]>([]);
@@ -30,6 +32,7 @@ export default function App() {
     <NavigationContainer>
       <ListContext.Provider value={{ list, addToList, removeFromList }}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="ZipCode" component={ZipCodeScreen} />
           <Stack.Screen name="ItemSelection" component={ItemSelectionScreen} />
           <Stack.Screen name="Results" component={ResultsScreen} />
         </Stack.Navigator>
