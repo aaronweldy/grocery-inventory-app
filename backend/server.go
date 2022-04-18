@@ -258,26 +258,20 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	body, _ := ioutil.ReadAll(r.Body)
-	//fmt.Println(r.Body)
-	fmt.Println("printed body of request")
-	// var user_input Request
 	user_input := Request{
 		Zip: r.FormValue("Zip"),
-		//Products: []string{"goat cheese", "tempeh", "frijoles volteados", "chips"},
 		Products: r.Form["Products"],
 	}
 	err := json.Unmarshal(body, &user_input)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Println(user_input.Zip)
 
 	// refresh token
 	url := "https://api.kroger.com/v1/connect/oauth2/token"
-
 	payload := strings.NewReader("grant_type=client_credentials&scope=product.compact")
-
 	req, _ := http.NewRequest("POST", url, payload)
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -288,22 +282,15 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	defer res.Body.Close()
 	body, _ = ioutil.ReadAll(res.Body)
 
-	// fmt.Println(res)
-	// fmt.Println(string(body))
-
 	var t Token
 	err = json.Unmarshal(body, &t)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("refreshed access token")
-	fmt.Println("zip code is")
-	fmt.Println(user_input.Zip)
 
 	// find nearby stores and search for products
-	// var response Response
 	response := LocationHandler(user_input.Zip, t.Access_token)
-	for _, store := range response {
+	for i, store := range response {
 		fmt.Println("hi")
 		missing := make([]string, 0)
 		for _, prod := range user_input.Products {
@@ -312,11 +299,21 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 				missing = append(missing, prod)
 			}
 		}
-		store.percentageInStock = float64(len(user_input.Products)-len(missing)) * 100.00 / float64(len(user_input.Products))
-		store.missingItems = missing
-		fmt.Println(store.percentageInStock)
-		fmt.Println(missing)
+		response[i].percentageInStock = float64(len(user_input.Products)-len(missing)) * 100.00 / float64(len(user_input.Products))
+		response[i].missingItems = missing
 	}
+
+	fmt.Println("response")
+	fmt.Println(response)
+
+	jsonResp, err := json.Marshal(response)
+	if err != nil {
+		log.Fatalf("Error happened in JSON marshal. Err: %s", err)
+	}
+	fmt.Println("jsonResp")
+	fmt.Println(jsonResp)
+	w.Write(jsonResp)
+	return
 
 }
 
