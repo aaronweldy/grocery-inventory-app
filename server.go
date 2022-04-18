@@ -23,6 +23,10 @@ type Store struct {
 	storeLogo         string
 }
 
+type Response struct {
+	Stores []Store
+}
+
 type Token struct {
 	Expires_in   int
 	Access_token string
@@ -202,7 +206,7 @@ func ProductHandler(term string, locationId string, token string) bool {
 	return available
 }
 
-func LocationHandler(zip string, token string) []Store {
+func LocationHandler(zip string, token string) Response {
 	url := fmt.Sprintf("https://api.kroger.com/v1/locations?filter.zipCode.near=%s&filter.limit=3", zip)
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -224,8 +228,8 @@ func LocationHandler(zip string, token string) []Store {
 	}
 
 	//locIdArray := make([]string, 0)
-	Response := make([]Store, 0)
-
+	// data := make([]Stores, 0)
+	var resp Response
 	for _, loc := range locs.Data {
 		s := Store{
 			storeName:         loc.Name,
@@ -235,9 +239,9 @@ func LocationHandler(zip string, token string) []Store {
 			percentageInStock: 0.0,
 			storeLogo:         "",
 		}
-		Response = append(Response, s)
+		resp.Stores = append(resp.Stores, s)
 	}
-	return Response
+	return resp
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
@@ -289,9 +293,8 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// find nearby stores and search for products
-	response := LocationHandler(user_input.Zip, t.Access_token)
-	for i, store := range response {
-		fmt.Println("hi")
+	resp := LocationHandler(user_input.Zip, t.Access_token)
+	for i, store := range resp.Stores {
 		missing := make([]string, 0)
 		for _, prod := range user_input.Products {
 			available := ProductHandler(prod, store.locationId, t.Access_token)
@@ -299,19 +302,22 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 				missing = append(missing, prod)
 			}
 		}
-		response[i].percentageInStock = float64(len(user_input.Products)-len(missing)) * 100.00 / float64(len(user_input.Products))
-		response[i].missingItems = missing
+		resp.Stores[i].percentageInStock = float64(len(user_input.Products)-len(missing)) * 100.00 / float64(len(user_input.Products))
+		resp.Stores[i].missingItems = missing
 	}
 
-	fmt.Println("response")
-	fmt.Println(response)
+	fmt.Println("resp")
+	fmt.Println(resp)
 
-	jsonResp, err := json.Marshal(response)
+	jsonResp, err := json.Marshal(resp)
 	if err != nil {
 		log.Fatalf("Error happened in JSON marshal. Err: %s", err)
 	}
 	fmt.Println("jsonResp")
 	fmt.Println(jsonResp)
+
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonResp)
 	return
 
