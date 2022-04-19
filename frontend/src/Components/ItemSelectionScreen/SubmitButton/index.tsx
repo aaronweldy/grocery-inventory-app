@@ -16,7 +16,7 @@ export const SubmitButton = ({ zip, setLoading }: SubmitButtonProps) => {
 
   const handlePress = async () => {
     setLoading(true);
-    const url = "https://git.heroku.com/quiet-oasis-59230.git/list";
+    const url = "https://git.heroku.comt/quiet-oasis-59230.git/list";
     const body = {
       products: list,
       zip,
