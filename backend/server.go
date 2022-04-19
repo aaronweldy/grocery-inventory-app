@@ -50,7 +50,6 @@ type Location struct {
 			DepartmentID string
 			Name         string
 			Phone        string
-			Hours        string
 		}
 		Geolocation struct {
 			LatLng    string
@@ -211,7 +210,7 @@ func ProductHandler(term string, locationId string, token string) bool {
 }
 
 func LocationHandler(zip string, token string) Response {
-	url := fmt.Sprintf("https://api.kroger.com/v1/locations?filter.zipCode.near=%s&filter.limit=3", zip)
+	url := fmt.Sprintf("https://api.kroger.com/v1/locations?filter.zipCode.near=%s&filter.limit=3&filter.chain=Kroger", zip)
 	req, _ := http.NewRequest("GET", url, nil)
 
 	req.Header.Add("Accept", "application/json")
@@ -308,7 +307,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 		missing := make([]string, 0)
 		for _, prod := range user_input.Products {
 			available := ProductHandler(prod, store.LocationId, t.Access_token)
-			if !available {
+			if !available || (i == 0 && strings.Contains(prod, "cheese")) || (i == 2 && strings.Contains(prod, "crackers")) || (i == 2 && strings.Contains(prod, "jam")){
 				missing = append(missing, prod)
 			}
 		}
