@@ -18,6 +18,7 @@ export const ContentRow = ({
   percentageInStock,
   storeLogo,
 }: ContentRowProps) => {
+  console.log(percentageInStock, percentageInStock.toString());
   return (
     <View style={ContentRowStyles.contentRow}>
       <Image

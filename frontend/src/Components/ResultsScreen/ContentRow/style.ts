@@ -17,12 +17,14 @@ export const ContentRowStyles = StyleSheet.create({
   },
   percentageContainer: {
     flex: 1,
+    flexGrow: 2,
+    flexWrap: "nowrap",
     alignItems: "center",
     justifyContent: "center",
   },
   percentage: {
-    fontSize: 36,
+    fontSize: 32,
     color: "#097969",
-    paddingHorizontal: 40,
+    paddingHorizontal: 5,
   },
 });

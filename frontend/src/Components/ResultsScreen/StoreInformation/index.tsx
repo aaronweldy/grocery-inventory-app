@@ -7,10 +7,6 @@ type StoreInformationProps = {
   missingItems: string[];
 };
 
-const renderItem = (item: string) => (
-  <Text style={StoreInformationStyle.missingItem}>{item}</Text>
-);
-
 export const StoreInformation = ({
   name,
   address,
