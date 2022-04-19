@@ -16,12 +16,13 @@ export const SubmitButton = ({ zip, setLoading }: SubmitButtonProps) => {
 
   const handlePress = async () => {
     setLoading(true);
-    const url = "http://192.168.191.255:8083/list";
+    const url = "https://git.heroku.com/quiet-oasis-59230.git/list";
     const body = {
       products: list,
       zip,
     };
     const headers = {
+      mode: "no-cors",
       method: "POST",
       "Content-Type": "application/json",
       body: JSON.stringify(body),
